@@ -1,0 +1,2 @@
+Antes de fazer o commit, sempre pedir o número da issue do GitHub que está sendo resolvida.
+Gerar mensagem de commit no seguinte formato: `#<número da issue> <mensagem do commit>`. Por exemplo, se a issue for a número 123 e a mensagem do commit for "Corrige bug na função de login", a mensagem final do commit deve ser: `#123 Corrige bug na função de login`.
