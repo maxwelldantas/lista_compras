@@ -46,6 +46,15 @@ class DatabaseHelper {
     );
   }
 
+  static Future<int> deleteList(int id) async {
+    final db = await database;
+    return await db.delete(
+      tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   static Future<List<MarketList>> getAllLists() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
