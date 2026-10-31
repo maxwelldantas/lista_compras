@@ -1,9 +1,43 @@
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 import '../models/market_list.dart';
+import 'new_list_screen.dart';
 
-class ListDetailsScreen extends StatelessWidget {
+class ListDetailsScreen extends StatefulWidget {
   final MarketList marketList;
+
   const ListDetailsScreen({super.key, required this.marketList});
+
+  @override
+  State<ListDetailsScreen> createState() => _ListDetailsScreenState();
+}
+
+class _ListDetailsScreenState extends State<ListDetailsScreen> {
+  late MarketList _currentList;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentList = widget.marketList; // Mantém a visualização atual ao entrar
+  }
+
+  Future<void> _navigateToEdit() async {
+    // Abre a tela de cadastro enviando a lista atual como existente para o lápis
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NewListScreen(existingList: _currentList),
+      ),
+    );
+
+    // Se o usuário modificou e salvou, grava no banco e atualiza a própria tela
+    if (result != null && result is MarketList) {
+      await DatabaseHelper.updateList(result);
+      setState(() {
+        _currentList = result; // Atualiza a visualização da tela dinamicamente
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,23 +48,30 @@ class ListDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              marketList.marketName,
+              _currentList.marketName,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              'Data: ${marketList.date}',
+              'Data: ${_currentList.date}',
               style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.black87), // Símbolo do Lápis
+            tooltip: 'Editar Lista',
+            onPressed: _navigateToEdit,
+          ),
+        ],
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: marketList.items.length,
+              itemCount: _currentList.items.length,
               itemBuilder: (context, index) {
-                final item = marketList.items[index];
+                final item = _currentList.items[index];
                 return ListTile(
                   leading: const Icon(
                     Icons.shopping_basket,
@@ -68,7 +109,7 @@ class ListDetailsScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
-                  'R\$ ${marketList.totalPrice.toStringAsFixed(2)}',
+                  'R\$ ${_currentList.totalPrice.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

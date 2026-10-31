@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../database/database_helper.dart';
 import '../models/market_list.dart';
 import 'new_list_screen.dart';
@@ -75,14 +76,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontSize: 16,
                         ),
                       ),
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        // Aguarda o fechamento da tela de detalhes
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
                                 ListDetailsScreen(marketList: list),
                           ),
                         );
+                        // Atualiza a lista vinda do banco local ao retornar
+                        _refreshLists();
                       },
                     );
                   }).toList(),

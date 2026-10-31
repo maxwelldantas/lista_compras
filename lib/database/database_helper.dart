@@ -36,6 +36,16 @@ class DatabaseHelper {
     return await db.insert(tableName, list.toMap());
   }
 
+  static Future<int> updateList(MarketList list) async {
+    final db = await database;
+    return await db.update(
+      tableName,
+      list.toMap(),
+      where: 'id = ?',
+      whereArgs: [list.id],
+    );
+  }
+
   static Future<List<MarketList>> getAllLists() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(

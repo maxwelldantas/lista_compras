@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../models/market_list.dart';
 import '../models/shopping_item.dart';
 
 class NewListScreen extends StatefulWidget {
-  const NewListScreen({super.key});
+  final MarketList? existingList;
+
+  const NewListScreen({super.key, this.existingList});
 
   @override
   State<NewListScreen> createState() => _NewListScreenState();
@@ -19,6 +22,25 @@ class _NewListScreenState extends State<NewListScreen> {
 
   DateTime _selectedDate = DateTime.now();
   final List<ShoppingItem> _itemsToAdd = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingList != null) {
+      _marketController.text = widget.existingList!.marketName;
+      _itemsToAdd.addAll(widget.existingList!.items);
+      try {
+        final parts = widget.existingList!.date.split('/');
+        if (parts.length == 3) {
+          _selectedDate = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+        }
+      } catch (_) {}
+    }
+  }
 
   String _formatDate(DateTime date) =>
       "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
@@ -42,8 +64,12 @@ class _NewListScreenState extends State<NewListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.existingList != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Criar nova lista')),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Editar lista' : 'Criar nova lista'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -206,15 +232,18 @@ class _NewListScreenState extends State<NewListScreen> {
                         Navigator.pop(
                           context,
                           MarketList(
+                            id: widget
+                                .existingList
+                                ?.id, // Preserva o ID ao salvar
                             marketName: _marketController.text.trim(),
                             date: _formatDate(_selectedDate),
                             items: _itemsToAdd,
                           ),
                         );
                       },
-                child: const Text(
-                  'Salvar lista',
-                  style: TextStyle(
+                child: Text(
+                  isEditing ? 'Salvar alterações' : 'Salvar lista',
+                  style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
