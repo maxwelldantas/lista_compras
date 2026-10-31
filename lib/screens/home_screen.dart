@@ -61,12 +61,39 @@ class _HomeScreenState extends State<HomeScreen> {
                   initiallyExpanded: true,
                   children: listsOnDate.map((list) {
                     return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      // 1. O Título exibe apenas o Nome do estabelecimento de forma limpa
                       title: Text(
                         list.marketName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
-                      subtitle: Text(
-                        '${list.items.length} produtos adicionados',
+                      // 2. O Subtítulo empilha a quantidade de produtos e a hora de criação embaixo dele
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${list.items.length} produtos adicionados',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          if (list.time.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2.0),
+                              child: Text(
+                                'Criada em: ${list.time}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       trailing: Text(
                         'R\$ ${list.totalPrice.toStringAsFixed(2)}',
@@ -77,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       onTap: () async {
-                        // Aguarda o fechamento da tela de detalhes
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -85,7 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ListDetailsScreen(marketList: list),
                           ),
                         );
-                        // Atualiza a lista vinda do banco local ao retornar
                         _refreshLists();
                       },
                     );

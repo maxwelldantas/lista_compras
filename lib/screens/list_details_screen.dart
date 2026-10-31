@@ -18,11 +18,10 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _currentList = widget.marketList; // Mantém a visualização atual ao entrar
+    _currentList = widget.marketList; // Mantém a visualização atual estável
   }
 
   Future<void> _navigateToEdit() async {
-    // Abre a tela de cadastro enviando a lista atual como existente para o lápis
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -30,12 +29,39 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
       ),
     );
 
-    // Se o usuário modificou e salvou, grava no banco e atualiza a própria tela
     if (result != null && result is MarketList) {
       await DatabaseHelper.updateList(result);
       setState(() {
-        _currentList = result; // Atualiza a visualização da tela dinamicamente
+        _currentList = result;
       });
+    }
+  }
+
+  // --- FUNÇÃO ADICIONADA PARA CONFIRMAR E EXCLUIR ---
+  Future<void> _confirmDelete() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir lista?'),
+        content: Text('Deseja realmente apagar as compras do mercado ${_currentList.marketName}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && _currentList.id != null) {
+      await DatabaseHelper.deleteList(_currentList.id!);
+      if (mounted) {
+        Navigator.pop(context); // Retorna para a HomeScreen após deletar
+      }
     }
   }
 
@@ -59,9 +85,14 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: Colors.black87), // Símbolo do Lápis
+            icon: const Icon(Icons.edit, color: Colors.black87),
             tooltip: 'Editar Lista',
             onPressed: _navigateToEdit,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Color.fromARGB(255, 211, 47, 47)),
+            tooltip: 'Deletar Lista',
+            onPressed: _confirmDelete,
           ),
         ],
       ),
@@ -82,8 +113,7 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   subtitle: Text(
-                    'Preço: R\$ ${item.price.toStringAsFixed(2)}  |  Qtd: ${item.quantity}',
-                  ),
+                      'Preço: R\$ ${item.price.toStringAsFixed(2)}  |  Qtd: ${item.quantity}'),
                   trailing: Text(
                     'R\$ ${(item.price * item.quantity).toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -118,7 +148,7 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
                 ),
               ],
             ),
-          ),
+          )
         ],
       ),
     );
