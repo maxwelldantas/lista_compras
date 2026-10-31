@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import '../database/database_helper.dart';
 import '../models/market_list.dart';
 import 'new_list_screen.dart';
@@ -14,6 +16,10 @@ class ListDetailsScreen extends StatefulWidget {
 
 class _ListDetailsScreenState extends State<ListDetailsScreen> {
   late MarketList _currentList;
+  final _currencyFormatPtBr = NumberFormat.currency(
+    locale: 'pt_BR',
+    symbol: 'R\$',
+  );
 
   @override
   void initState() {
@@ -42,8 +48,10 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir lista?'),
-        content: Text('Deseja realmente apagar as compras do mercado ${_currentList.marketName}?'),
+        title: const Text('Exclusão de lista de compras'),
+        content: Text(
+          'Lista criada em ${_currentList.date} às ${_currentList.time}, deseja realmente apagar todas essas compras no estabelecimento ${_currentList.marketName}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -90,7 +98,10 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
             onPressed: _navigateToEdit,
           ),
           IconButton(
-            icon: const Icon(Icons.delete, color: Color.fromARGB(255, 211, 47, 47)),
+            icon: const Icon(
+              Icons.delete,
+              color: Color.fromARGB(255, 211, 47, 47),
+            ),
             tooltip: 'Deletar Lista',
             onPressed: _confirmDelete,
           ),
@@ -113,9 +124,10 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   subtitle: Text(
-                      'Preço: R\$ ${item.price.toStringAsFixed(2)}  |  Qtd: ${item.quantity}'),
+                    'Preço: ${_currencyFormatPtBr.format(item.price)}  |  Qtd: ${item.quantity}',
+                  ),
                   trailing: Text(
-                    'R\$ ${(item.price * item.quantity).toStringAsFixed(2)}',
+                    _currencyFormatPtBr.format(item.price * item.quantity),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 );
@@ -139,7 +151,7 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
-                  'R\$ ${_currentList.totalPrice.toStringAsFixed(2)}',
+                  _currencyFormatPtBr.format(_currentList.totalPrice),
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -148,7 +160,7 @@ class _ListDetailsScreenState extends State<ListDetailsScreen> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/market_list.dart';
 import '../models/shopping_item.dart';
@@ -22,6 +23,10 @@ class _NewListScreenState extends State<NewListScreen> {
 
   DateTime _selectedDate = DateTime.now();
   final List<ShoppingItem> _itemsToAdd = [];
+  final _currencyFormatPtBr = NumberFormat.currency(
+    locale: 'pt_BR',
+    symbol: 'R\$',
+  );
 
   @override
   void initState() {
@@ -138,7 +143,7 @@ class _NewListScreenState extends State<NewListScreen> {
                     controller: _quantityController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: 'Qtd',
+                      labelText: 'Qtd.',
                       isDense: true,
                     ),
                   ),
@@ -151,12 +156,14 @@ class _NewListScreenState extends State<NewListScreen> {
                   ),
                   onPressed: () {
                     final name = _nameController.text.trim();
-                    final price =
-                        double.tryParse(
-                          _priceController.text.replaceAll(',', '.'),
-                        ) ??
-                        0.0;
-                    final qty = int.tryParse(_quantityController.text) ?? 1;
+                    final priceText = _priceController.text.trim().replaceAll(
+                      ',',
+                      '.',
+                    );
+                    final qtyText = _quantityController.text.trim();
+
+                    final price = double.tryParse(priceText) ?? 0.0;
+                    final qty = int.tryParse(qtyText) ?? 1;
 
                     if (name.isNotEmpty) {
                       setState(() {
@@ -182,13 +189,15 @@ class _NewListScreenState extends State<NewListScreen> {
                     child: ListTile(
                       title: Text(item.name),
                       subtitle: Text(
-                        'R\$ ${item.price.toStringAsFixed(2)} x ${item.quantity}',
+                        '${_currencyFormatPtBr.format(item.price)} x ${item.quantity}',
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'R\$ ${(item.price * item.quantity).toStringAsFixed(2)}',
+                            _currencyFormatPtBr.format(
+                              item.price * item.quantity,
+                            ),
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                           IconButton(
@@ -208,7 +217,7 @@ class _NewListScreenState extends State<NewListScreen> {
               width: double.infinity,
               color: Colors.green.shade50,
               child: Text(
-                'Soma total dos produtos: R\$ ${_currentSubtotal.toStringAsFixed(2)}',
+                _currencyFormatPtBr.format(_currentSubtotal),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,
