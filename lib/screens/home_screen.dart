@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
 import '../models/market_list.dart';
@@ -14,6 +15,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<MarketList> _allLists = [];
+  final _currencyFormatPtBr = NumberFormat.currency(
+    locale: 'pt_BR',
+    symbol: 'R\$',
+  );
 
   @override
   void initState() {
@@ -46,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.green.shade100,
       ),
       body: _allLists.isEmpty
-          ? const Center(child: Text('Nenhuma lista salva no banco SQLite.'))
+          ? const Center(child: Text('Nenhuma lista salva'))
           : ListView.builder(
               itemCount: groupedLists.keys.length,
               itemBuilder: (context, index) {
@@ -96,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       trailing: Text(
-                        'R\$ ${list.totalPrice.toStringAsFixed(2)}',
+                        _currencyFormatPtBr.format(list.totalPrice),
                         style: const TextStyle(
                           color: Colors.green,
                           fontWeight: FontWeight.bold,

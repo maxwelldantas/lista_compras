@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   sqflite: ^2.4.1   # Banco SQLite local
   path: ^1.9.1      # Gerenciador de caminhos de arquivos
+  intl: ^0.20.1     # Adicione esta linha para formatação de moedas
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
