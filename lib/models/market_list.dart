@@ -1,16 +1,19 @@
 import 'dart:convert';
+
 import 'shopping_item.dart';
 
 class MarketList {
   final int? id;
   final String marketName;
   final String date;
+  final String time; // Nova propriedade de horário
   final List<ShoppingItem> items;
 
   MarketList({
     this.id,
     required this.marketName,
     required this.date,
+    required this.time,
     required this.items,
   });
 
@@ -21,6 +24,7 @@ class MarketList {
     if (id != null) 'id': id,
     'marketName': marketName,
     'date': date,
+    'time': time,
     'itemsJson': json.encode(items.map((i) => i.toMap()).toList()),
   };
 
@@ -30,6 +34,7 @@ class MarketList {
       id: map['id'],
       marketName: map['marketName'],
       date: map['date'],
+      time: map['time'] ?? '', // Fallback para registros antigos sem hora
       items: decoded.map((i) => ShoppingItem.fromMap(i)).toList(),
     );
   }

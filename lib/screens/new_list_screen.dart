@@ -229,14 +229,20 @@ class _NewListScreenState extends State<NewListScreen> {
                         _itemsToAdd.isEmpty)
                     ? null
                     : () {
+                        // 1. Calcula o horário atual no formato HH:MM:SS
+                        final now = DateTime.now();
+                        final currentTimeString =
+                            "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
                         Navigator.pop(
                           context,
                           MarketList(
-                            id: widget
-                                .existingList
-                                ?.id, // Preserva o ID ao salvar
+                            id: widget.existingList?.id,
                             marketName: _marketController.text.trim(),
                             date: _formatDate(_selectedDate),
+                            // 2. Se for edição, mantém o horário antigo. Se for nova, insere o horário atual.
+                            time:
+                                widget.existingList?.time ?? currentTimeString,
                             items: _itemsToAdd,
                           ),
                         );

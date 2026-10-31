@@ -15,18 +15,31 @@ class DatabaseHelper {
   static Future<Database> _initDb() async {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, 'shopping.db');
+    
+    // Mudamos a versão para 2 para disparar a atualização de tabelas
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, 
       onCreate: (db, version) async {
         await db.execute('''
-        CREATE TABLE $tableName (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          marketName TEXT,
-          date TEXT,
-          itemsJson TEXT
-        )
-      ''');
+          CREATE TABLE $tableName (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            marketName TEXT,
+            date TEXT,
+            time TEXT,
+            itemsJson TEXT
+          )
+        ''');
+      },
+      // --- LOGICA DE MIGRAÇÃO: ADICIONA A COLUNA TIME SE VOCÊ JÁ TINHA O APP INSTALADO ---
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          try {
+            await db.execute('ALTER TABLE $tableName ADD COLUMN time TEXT DEFAULT ""');
+          } catch (_) {
+            // Evita que o app trave se a coluna de alguma forma já existir
+          }
+        }
       },
     );
   }
